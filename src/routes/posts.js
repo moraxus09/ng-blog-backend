@@ -7,7 +7,7 @@ const authCheck = require('../middlewares/auth');
 router.get('/', (req, res) => {
     const page = +req.query.page || 0;
     const limit = +req.query.limit || 0;
-    const fetchedPosts = [];
+    let fetchedPosts = [];
     Post.find()
         .skip((page - 1) * limit)
         .limit(limit)
@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-   Post.findOne({_id: req.params.id}).then(post => res.json(post));
+   Post.findById(req.params.id).then(post => res.json(post));
 });
 
 router.post('/', authCheck, (req, res) => {
@@ -35,8 +35,11 @@ router.post('/', authCheck, (req, res) => {
 });
 
 router.put('/:id', authCheck, (req, res) => {
-   Post.updateOne({_id: req.params.id, 'owner.id': req.userId}, req.body)
-       .then(() => res.sendStatus(200));
+    Post.updateOne({_id: req.params.id, 'owner.id': req.userId}, req.body)
+        .then((result) => {
+            console.log(result);
+            res.sendStatus(200);
+        });
 });
 
 router.delete('/:id', authCheck, (req, res) => {
@@ -47,7 +50,7 @@ router.delete('/:id', authCheck, (req, res) => {
 router.get('/:id/comments', (req, res) => {
     const page = +req.query.page || 0;
     const limit = +req.query.limit || 0;
-    const fetchedComments = [];
+    let fetchedComments = [];
     PostComment.find({postId: req.params.id})
         .skip(page * limit)
         .limit(limit)
@@ -61,12 +64,13 @@ router.get('/:id/comments', (req, res) => {
 router.post('/:id/comments', authCheck, (req, res) => {
     getUserPreview(req.userId)
         .then(owner => {
-            return Post.create({
+            return PostComment.create({
                 owner,
                 postId: req.params.id,
                 text: req.body.text
             });
         })
+        .then(comment => res.json({coomentId: comment._id}));
 });
 
 router.put('/:id/comments/:commentId', authCheck, (req, res) => {
@@ -80,7 +84,7 @@ router.delete('/:id/comments/:commentId', authCheck, (req, res) => {
 });
 
 function getUserPreview(userId) {
-    return User.findOne({_id: userId})
+    return User.findById(userId)
         .then(user => {
             return {
                 id: user._id,
