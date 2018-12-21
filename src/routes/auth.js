@@ -6,6 +6,7 @@ const path = require('path');
 const _ = require('lodash');
 const User = require('../models/user');
 const config = require('../app.config');
+const authCheck = require('../middlewares/auth');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -51,6 +52,12 @@ router.post('/login', (req, res) => {
         }
     })
 
+});
+
+router.get('/me', authCheck,  (req, res) => {
+    User.findById(req.userId).then((user) => {
+        res.send(_.omit(user.toObject(), 'password'));
+    })
 });
 
 module.exports = router;

@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use('/profile-avatars', express.static('public/profile-avatars'));
+app.use('/post-previews', express.static('public/post-previews'));
 
 app.use('/auth', authRouter);
 app.use('/posts', postsRouter);
