@@ -55,14 +55,23 @@ router.post('/', authCheck, multer({storage}).single('preview'), (req, res) => {
 router.put('/:id', authCheck, (req, res) => {
     Post.updateOne({_id: req.params.id, 'owner.id': req.userId}, req.body)
         .then((result) => {
-            console.log(result);
-            res.sendStatus(200);
+            if (result.n) {
+                res.status(200).send();
+            } else {
+                res.status(500).send();
+            }
         });
 });
 
 router.delete('/:id', authCheck, (req, res) => {
    Post.deleteOne({_id: req.params.id, 'owner.id': req.userId})
-       .then(() => res.sendStatus(200));
+       .then((result) => {
+           if (result.n) {
+               res.status(200).send();
+           } else {
+               res.status(500).send();
+           }
+       });
 });
 
 router.get('/:id/comments', (req, res) => {
@@ -93,19 +102,31 @@ router.post('/:id/comments', authCheck, (req, res) => {
 
 router.put('/:id/comments/:commentId', authCheck, (req, res) => {
    PostComment.updateOne({_id: req.params.commentId, 'owner.id': req.userId})
-       .then(() => res.sendStatus(200));
+       .then((result) => {
+           if (result.n) {
+               res.status(200).send();
+           } else {
+               res.status(500).send();
+           }
+       });
 });
 
 router.delete('/:id/comments/:commentId', authCheck, (req, res) => {
    PostComment.deleteOne({_id: req.params.commentId, 'owner.id': req.userId})
-       .then(() => res.sendStatus(200));
+       .then((result) =>{
+           if (result.n) {
+               res.status(200).send();
+           } else {
+               res.status(500).send();
+           }
+       });
 });
 
 function getUserPreview(userId) {
     return User.findById(userId)
         .then(user => {
             return {
-                id: user._id,
+                id: user._id.toString(),
                 firstName: user.firstName,
                 lastName: user.lastName,
                 avatarSrc: user.avatarSrc

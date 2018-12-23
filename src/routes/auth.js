@@ -42,10 +42,10 @@ router.post('/login', (req, res) => {
     User.findOne({email: req.body.email}, (err, user) => {
         if (err) {
             return res.sendStatus(500);
+        } else if (!user) {
+            return res.sendStatus(404);
         } else if (!bcrypt.compareSync(req.body.password, user.password)) {
             return res.sendStatus(422);
-        } else if (!user) {
-            return res.sendStatus(400);
         } else {
             const token = jwt.sign({id: user._id}, config.secret, {expiresIn: 86400});
             return res.send({token, user: _.omit(user.toObject(), 'password')});

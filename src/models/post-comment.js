@@ -4,8 +4,9 @@ const commentSchema = mongoose.Schema({
     owner: {required: true, type: Object},
     postId: {required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Post'},
     text: {required: true, type: String},
-    likes: {default: 0, type: Number},
-    dislikes: {default: 0, type: Number}
+    likes: {required: false, default: [], type: Array},
+    dislikes: {required: false, default: [], type: Array},
+    timestamp: {required: false, default: Date.now, type: Date}
 });
 const PostComment = mongoose.model('PostComment', commentSchema);
 
